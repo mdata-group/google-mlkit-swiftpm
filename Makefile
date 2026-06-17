@@ -156,7 +156,22 @@ create-xcframework: bootstrap-builder build-cocoapods prepare-info-plist
 copy-resource-bundle:
 	@cp -rf "./Pods/MLKitFaceDetection/Frameworks/MLKitFaceDetection.framework/GoogleMVFaceDetectorResources.bundle" "./GoogleMLKit/GoogleMVFaceDetectorResources.bundle"
 
-archive: create-xcframework copy-resource-bundle
+# Text recognition resolves its OCR model via -[MLKTextRecognizer initWithLogger:options:],
+# which lives in MLKitTextRecognitionCommon and looks the bundle up with [NSBundle bundleForClass:].
+# So LatinOCRResources.bundle must sit INSIDE MLKitTextRecognitionCommon.framework, not be shipped
+# as a sibling top-level .bundle (that never gets found). The pod ships the raw model files under
+# Pods/MLKitTextRecognition/Resources/LatinOCRResources; assemble them into a .bundle and embed it
+# into every slice of the produced xcframework. See issue #106.
+embed-text-recognition-resources:
+	@for SLICE in ios-arm64 ios-x86_64-simulator; do \
+		BUNDLE="./GoogleMLKit/MLKitTextRecognitionCommon.xcframework/$$SLICE/MLKitTextRecognitionCommon.framework/LatinOCRResources.bundle"; \
+		rm -rf "$$BUNDLE"; \
+		mkdir -p "$$BUNDLE"; \
+		cp -rf "./Pods/MLKitTextRecognition/Resources/LatinOCRResources/." "$$BUNDLE/"; \
+		cp -f "./Resources/LatinOCRResources-Info.plist" "$$BUNDLE/Info.plist"; \
+	done
+
+archive: create-xcframework copy-resource-bundle embed-text-recognition-resources
 	@cd ./GoogleMLKit/MLKitBarcodeScanning.xcframework/ios-arm64/MLKitBarcodeScanning.framework \
 	 && mv MLKitBarcodeScanning MLKitBarcodeScanning.o \
 	 && ar r MLKitBarcodeScanning MLKitBarcodeScanning.o \
