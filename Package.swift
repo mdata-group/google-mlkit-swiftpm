@@ -157,7 +157,7 @@ let package = Package(
       checksum: "c095707fd64bad2f36cd9bcc86251de6aab7197d5b35112f3cdf40c6c94a6b4b"),
     .binaryTarget(
       name: "MLKitTextRecognition",
-      url: "https://github.com/alex-pan-invos/google-mlkit-swiftpm/releases/download/9.0.0-textfix1/MLKitTextRecognition.xcframework.zip",
+      url: "https://github.com/alex-pan-invos/google-mlkit-swiftpm/releases/download/9.0.0-textfix2/MLKitTextRecognition.xcframework.zip",
       checksum: "fcf2598d71812cca79d07ecd76730b1aa32567f8603a15259fe4e822c431d82e"),
     .binaryTarget(
       name: "MLKitTextRecognitionChinese",
@@ -237,7 +237,7 @@ let package = Package(
       checksum: "38ba81503e8db531931e5ca0e0694aa86108ff056faca403bed35854f53cc65b"),
     .binaryTarget(
       name: "MLKitTextRecognitionCommon",
-      url: "https://github.com/alex-pan-invos/google-mlkit-swiftpm/releases/download/9.0.0-textfix1/MLKitTextRecognitionCommon.xcframework.zip",
+      url: "https://github.com/alex-pan-invos/google-mlkit-swiftpm/releases/download/9.0.0-textfix2/MLKitTextRecognitionCommon.xcframework.zip",
       checksum: "5b9f7f746ea1d08bad5d40e603728482f15b9203664b4efbc285f59d43311300"),
     .binaryTarget(
       name: "MLKitXenoCommon",
