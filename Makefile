@@ -155,6 +155,30 @@ create-xcframework: bootstrap-builder build-cocoapods prepare-info-plist
 
 copy-resource-bundle:
 	@cp -rf "./Pods/MLKitFaceDetection/Frameworks/MLKitFaceDetection.framework/GoogleMVFaceDetectorResources.bundle" "./GoogleMLKit/GoogleMVFaceDetectorResources.bundle"
+	@set -e; for spec in \
+		"MLKitTextRecognition:LatinOCRResources" \
+		"MLKitTextRecognitionChinese:ChineseOCRResources" \
+		"MLKitTextRecognitionJapanese:JapaneseOCRResources" \
+		"MLKitTextRecognitionKorean:KoreanOCRResources" \
+		"MLKitTextRecognitionDevanagari:DevanagariOCRResources"; do \
+		pod="$${spec%%:*}"; name="$${spec##*:}"; \
+		rm -rf "./GoogleMLKit/$$name.bundle"; \
+		mkdir -p "./GoogleMLKit/$$name.bundle"; \
+		cp -rf "./Pods/$$pod/Resources/$$name/." "./GoogleMLKit/$$name.bundle/"; \
+		printf '%s\n' \
+			'<?xml version="1.0" encoding="UTF-8"?>' \
+			'<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' \
+			'<plist version="1.0">' \
+			'<dict>' \
+			'	<key>CFBundleDevelopmentRegion</key><string>en</string>' \
+			"	<key>CFBundleIdentifier</key><string>org.cocoapods.$$name</string>" \
+			'	<key>CFBundleInfoDictionaryVersion</key><string>6.0</string>' \
+			"	<key>CFBundleName</key><string>$$name</string>" \
+			'	<key>CFBundlePackageType</key><string>BNDL</string>' \
+			'	<key>CFBundleVersion</key><string>1</string>' \
+			'</dict>' \
+			'</plist>' > "./GoogleMLKit/$$name.bundle/Info.plist"; \
+	done
 
 archive: create-xcframework copy-resource-bundle
 	@cd ./GoogleMLKit/MLKitBarcodeScanning.xcframework/ios-arm64/MLKitBarcodeScanning.framework \
@@ -217,6 +241,16 @@ archive: create-xcframework copy-resource-bundle
 	 && ar r MLKitSmartReply MLKitSmartReply.o \
 	 && ranlib MLKitSmartReply \
 	 && rm MLKitSmartReply.o
+	@cd ./GoogleMLKit/MLKitTextRecognitionCommon.xcframework/ios-arm64/MLKitTextRecognitionCommon.framework \
+	 && mv MLKitTextRecognitionCommon MLKitTextRecognitionCommon.o \
+	 && ar r MLKitTextRecognitionCommon MLKitTextRecognitionCommon.o \
+	 && ranlib MLKitTextRecognitionCommon \
+	 && rm MLKitTextRecognitionCommon.o
+	@cd ./GoogleMLKit/MLKitTextRecognitionCommon.xcframework/ios-x86_64-simulator/MLKitTextRecognitionCommon.framework \
+	 && mv MLKitTextRecognitionCommon MLKitTextRecognitionCommon.o \
+	 && ar r MLKitTextRecognitionCommon MLKitTextRecognitionCommon.o \
+	 && ranlib MLKitTextRecognitionCommon \
+	 && rm MLKitTextRecognitionCommon.o
 	@cd ./GoogleMLKit \
 	 && zip -r MLKitBarcodeScanning.xcframework.zip MLKitBarcodeScanning.xcframework \
 	 && zip -r MLKitFaceDetection.xcframework.zip MLKitFaceDetection.xcframework \
@@ -248,6 +282,11 @@ archive: create-xcframework copy-resource-bundle
 	 && zip -r MLKitSegmentationCommon.xcframework.zip MLKitSegmentationCommon.xcframework \
 	 && zip -r MLKitTextRecognitionCommon.xcframework.zip MLKitTextRecognitionCommon.xcframework \
 	 && zip -r MLKitXenoCommon.xcframework.zip MLKitXenoCommon.xcframework \
-	 && zip -r GoogleMVFaceDetectorResources.bundle.zip GoogleMVFaceDetectorResources.bundle
+	 && zip -r GoogleMVFaceDetectorResources.bundle.zip GoogleMVFaceDetectorResources.bundle \
+	 && zip -r LatinOCRResources.bundle.zip LatinOCRResources.bundle \
+	 && zip -r ChineseOCRResources.bundle.zip ChineseOCRResources.bundle \
+	 && zip -r JapaneseOCRResources.bundle.zip JapaneseOCRResources.bundle \
+	 && zip -r KoreanOCRResources.bundle.zip KoreanOCRResources.bundle \
+	 && zip -r DevanagariOCRResources.bundle.zip DevanagariOCRResources.bundle
 .PHONY:
 run: archive
